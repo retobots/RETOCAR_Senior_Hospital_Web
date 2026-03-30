@@ -8,7 +8,7 @@ import { getAuth } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-aut
 import { getFirestore } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAZDB4tGy4X4SL2McHFuYmmXS-EhovOFwo",
+  apiKey: "//",
   authDomain: "deliveryrobot-2026.firebaseapp.com",
   projectId: "deliveryrobot-2026",
   storageBucket: "deliveryrobot-2026.firebasestorage.app",
