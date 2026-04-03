@@ -26,7 +26,21 @@ import {
   writeBatch,
 } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
+import { onSnapshot } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
 class FirebaseService {
+  
+          // Lắng nghe realtime collection robots
+          listenRobotsRealtime(callback) {
+            const q = collection(db, "robots");
+            return onSnapshot(q, (querySnapshot) => {
+              const data = [];
+              querySnapshot.forEach((doc) => {
+                data.push({ id: doc.id, ...doc.data() });
+              });
+              callback(data);
+            });
+          }
         // Thêm log hệ thống lên Firestore
         async addSystemLogToCloud(log) {
           try {

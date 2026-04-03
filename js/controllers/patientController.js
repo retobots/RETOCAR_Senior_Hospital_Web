@@ -160,38 +160,38 @@ class PatientController {
       }
     }
 
-    // Edit buttons
-    const editBtns = this.viewContainer.querySelectorAll(".edit-patient-btn");
-    editBtns.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const patientId = Number(btn.dataset.id);
-        const patient = patientService.getPatientById(patientId);
-        if (patient) {
-          this.openEditModal(patient);
-        }
-      });
-    });
+    // // Edit buttons
+    // const editBtns = this.viewContainer.querySelectorAll(".edit-patient-btn");
+    // editBtns.forEach((btn) => {
+    //   btn.addEventListener("click", () => {
+    //     const patientId = Number(btn.dataset.id);
+    //     const patient = patientService.getPatientById(patientId);
+    //     if (patient) {
+    //       this.openEditModal(patient);
+    //     }
+    //   });
+    // });
 
-    // Đóng modal chỉnh sửa bệnh nhân
-    const editCancelBtn = this.viewContainer.querySelector("#patient-edit-modal-cancel");
-    if (editCancelBtn) {
-      editCancelBtn.addEventListener("click", () => this.closeEditModal());
-    }
+    // // Đóng modal chỉnh sửa bệnh nhân
+    // const editCancelBtn = this.viewContainer.querySelector("#patient-edit-modal-cancel");
+    // if (editCancelBtn) {
+    //   editCancelBtn.addEventListener("click", () => this.closeEditModal());
+    // }
 
-    // Modal form submit (chỉnh sửa bệnh nhân)
-    const editForm = this.viewContainer.querySelector("#patient-edit-modal-form");
-    if (editForm) {
-      editForm.addEventListener("submit", (e) => this.handleEditFormSubmit(e));
-    }
+    // // Modal form submit (chỉnh sửa bệnh nhân)
+    // const editForm = this.viewContainer.querySelector("#patient-edit-modal-form");
+    // if (editForm) {
+    //   editForm.addEventListener("submit", (e) => this.handleEditFormSubmit(e));
+    // }
 
-    // Modal click outside (chỉnh sửa bệnh nhân)
-    const editModal = this.viewContainer.querySelector("#patient-edit-modal");
-    if (editModal) {
-      setupModalClose(editModal, () => this.closeEditModal());
-      if (this.editingPatient) {
-        focusFirstInputInModal(editModal);
-      }
-    }
+    // // Modal click outside (chỉnh sửa bệnh nhân)
+    // const editModal = this.viewContainer.querySelector("#patient-edit-modal");
+    // if (editModal) {
+    //   setupModalClose(editModal, () => this.closeEditModal());
+    //   if (this.editingPatient) {
+    //     focusFirstInputInModal(editModal);
+    //   }
+    // }
 
     // Lọc
     const statusFilter = this.viewContainer.querySelector("#patient-status-filter");
@@ -233,15 +233,15 @@ class PatientController {
     this.renderView();
   }
 
-  openEditModal(patient) {
-    this.editingPatient = patient;
-    this.renderView();
-  }
+  // openEditModal(patient) {
+  //   this.editingPatient = patient;
+  //   this.renderView();
+  // }
 
-  closeEditModal() {
-    this.editingPatient = null;
-    this.renderView();
-  }
+  // closeEditModal() {
+  //   this.editingPatient = null;
+  //   this.renderView();
+  // }
 
   async handleFormSubmit(event) {
     event.preventDefault();
@@ -269,32 +269,32 @@ class PatientController {
     this.closeModal();
   }
 
-  async handleEditFormSubmit(event) {
-    event.preventDefault();
-    const form = event.currentTarget;
-    const patientId = Number(form.querySelector("#edit-patient-id").value);
+  // async handleEditFormSubmit(event) {
+  //   event.preventDefault();
+  //   const form = event.currentTarget;
+  //   const patientId = Number(form.querySelector("#edit-patient-id").value);
 
-    const result = await patientService.updatePatient(patientId, {
-      name: form.name.value.trim(),
-      room: form.room.value.trim(),
-      bed: form.bed.value.trim(),
-      status: form.status.value,
-      gender: form.gender ? form.gender.value : '',
-      dob: form.dob ? form.dob.value : '',
-      admissionDate: form.admissionDate ? form.admissionDate.value : '',
-      dischargeDate: form.dischargeDate ? form.dischargeDate.value : '',
-    });
+  //   const result = await patientService.updatePatient(patientId, {
+  //     name: form.name.value.trim(),
+  //     room: form.room.value.trim(),
+  //     bed: form.bed.value.trim(),
+  //     status: form.status.value,
+  //     gender: form.gender ? form.gender.value : '',
+  //     dob: form.dob ? form.dob.value : '',
+  //     admissionDate: form.admissionDate ? form.admissionDate.value : '',
+  //     dischargeDate: form.dischargeDate ? form.dischargeDate.value : '',
+  //   });
 
-    if (!result.success) {
-      showToast(result.message);
-      return;
-    }
+  //   if (!result.success) {
+  //     showToast(result.message);
+  //     return;
+  //   }
 
-    await patientService.syncPatientsFromCloud();
-    // UI will auto-update via stateService subscription
-    showToast(result.message);
-    this.closeEditModal();
-  }
+  //   await patientService.syncPatientsFromCloud();
+  //   // UI will auto-update via stateService subscription
+  //   showToast(result.message);
+  //   this.closeEditModal();
+  // }
 }
 
 export default new PatientController();
