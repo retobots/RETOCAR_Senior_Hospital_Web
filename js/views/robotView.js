@@ -77,28 +77,35 @@ export function renderRobotView(container, robots, stats, selectedRobotId = null
       </div>
     </div>`;
 
-  // Block tốc độ (cho phép điều chỉnh)
+  // Block biểu đồ Motor Speed dạng cột SVG
+  const motorSpeedChart = `
+    <div style="width:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+      <div style="font-size:19px;font-weight:700;color:#3a4a5d;margin-bottom:8px;">Tốc độ động cơ</div>
+      <svg width="80" height="48" viewBox="0 0 80 48">
+        <rect x="4" y="32" width="12" height="12" rx="6" fill="${(mainRobot.speed||0)>=1?'#3498fd':'#e5eaf2'}"/>
+        <rect x="20" y="24" width="12" height="20" rx="6" fill="${(mainRobot.speed||0)>=25?'#3498fd':'#e5eaf2'}"/>
+        <rect x="36" y="16" width="12" height="28" rx="6" fill="${(mainRobot.speed||0)>=50?'#3498fd':'#e5eaf2'}"/>
+        <rect x="52" y="8" width="12" height="36" rx="6" fill="${(mainRobot.speed||0)>=75?'#3498fd':'#e5eaf2'}"/>
+        <rect x="68" y="0" width="12" height="44" rx="6" fill="${(mainRobot.speed||0)>=100?'#3498fd':'#e5eaf2'}"/>
+      </svg>
+    </div>
+  `;
+
+  // Block tốc độ (cho phép điều chỉnh) kèm biểu đồ bên trái
   const performanceBlock = `
-    <div style="background:#fff;border-radius:18px;padding:24px 32px;box-shadow:0 2px 12px #0001;flex:1;">
-      <div style="font-size:20px;font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:8px;">&#128337; Tốc độ di chuyển</div>
-      <div style="display:flex;align-items:center;gap:18px;">
-        <input id="robot-speed-input" type="range" min="0" max="100" step="1" value="${mainRobot.speed || 50}" data-robot-id="${mainRobot.id || ''}" style="flex:1;accent-color:#2563eb;" />
-        <span style="font-size:28px;font-weight:700;color:#2563eb;min-width:60px;text-align:right;">${mainRobot.speed || 50} m/s</span>
-      </div>
-
-    </div>`;
-
-  // Block chỉ số hệ thống (bỏ nhiệt độ CPU)
-  const systemBlock = `
-    <div style="background:#fff;border-radius:18px;padding:24px 32px;box-shadow:0 2px 12px #0001;flex:1;">
-      <div style="font-size:20px;font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:8px;">&#10010; Chỉ số hệ thống</div>
-      <div style="display:flex;justify-content:center;">
-        <div style="text-align:center;flex:1;">
-          <div style="font-size:13px;font-weight:700;opacity:0.7;">KẾT NỐI</div>
-          <div style="font-size:28px;font-weight:800;color:#10b981;">Cực tốt</div>
+    <div style="background:#fff;border-radius:18px;padding:24px 32px;box-shadow:0 2px 12px #0001;flex:1;display:flex;align-items:center;gap:32px;min-height:120px;">
+      ${motorSpeedChart}
+      <div style="flex:1;">
+        <div style="font-size:20px;font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:8px;">&#128337; Tốc độ di chuyển</div>
+        <div style="display:flex;align-items:center;gap:18px;">
+          <input id="robot-speed-input" type="range" min="0" max="100" step="1" value="${mainRobot.speed || 50}" data-robot-id="${mainRobot.id || ''}" style="flex:1;accent-color:#2563eb;" />
+          <span style="font-size:28px;font-weight:700;color:#2563eb;min-width:60px;text-align:right;">${mainRobot.speed || 50} m/s</span>
         </div>
       </div>
     </div>`;
+
+  // Block chỉ số hệ thống đã bị xóa
+  const systemBlock = '';
 
   // Block danh sách robot phụ (ngoài robot chính)
   const teamStatus = teamRobots.length ? `

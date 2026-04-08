@@ -39,5 +39,6 @@ export const DEFAULT_STATE = {
     { patientId: "", note: "" },
     { patientId: "", note: "" },
     { patientId: "", note: "" },
-  ]
+  ],
+  patients: []
 };

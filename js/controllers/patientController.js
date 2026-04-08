@@ -123,21 +123,21 @@ class PatientController {
       });
     });
 
-    // Nút xuất viện trong modal chỉnh sửa
-    const editModalDischargeBtn = this.viewContainer.querySelector("#patient-edit-modal .discharge-patient-btn");
-    if (editModalDischargeBtn) {
-      editModalDischargeBtn.addEventListener("click", async () => {
-        const patientId = editModalDischargeBtn.dataset.id; // Lấy id dạng chuỗi
-        const today = new Date().toISOString().slice(0, 10);
-        const confirmDischarge = confirm("Bạn có chắc muốn xuất viện bệnh nhân này?");
-        if (confirmDischarge) {
-          const result = await patientService.dischargePatient(patientId, today);
-          showToast(result.message);
-          await patientService.syncPatientsFromCloud();
-          this.closeEditModal();
-        }
-      });
-    }
+    // // Nút xuất viện trong modal chỉnh sửa
+    // const editModalDischargeBtn = this.viewContainer.querySelector("#patient-edit-modal .discharge-patient-btn");
+    // if (editModalDischargeBtn) {
+    //   editModalDischargeBtn.addEventListener("click", async () => {
+    //     const patientId = editModalDischargeBtn.dataset.id; // Lấy id dạng chuỗi
+    //     const today = new Date().toISOString().slice(0, 10);
+    //     const confirmDischarge = confirm("Bạn có chắc muốn xuất viện bệnh nhân này?");
+    //     if (confirmDischarge) {
+    //       const result = await patientService.dischargePatient(patientId, today);
+    //       showToast(result.message);
+    //       await patientService.syncPatientsFromCloud();
+    //       this.closeEditModal();
+    //     }
+    //   });
+    // }
 
     // Đóng modal thêm bệnh nhân
     const cancelBtn = this.viewContainer.querySelector("#patient-modal-cancel");
