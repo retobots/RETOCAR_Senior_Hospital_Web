@@ -38,11 +38,18 @@ export function renderPatientView(container, patients, isModalVisible = false, e
   // Table rows
   const rows = pagedPatients
     .map(
-      (p) => `
+      (p) => {
+        // Chỉ lấy số giường (nếu có)
+        let bedNum = p.bed;
+        if (typeof bedNum === 'string') {
+          const match = bedNum.match(/\d+/);
+          bedNum = match ? match[0] : bedNum;
+        }
+        return `
       <tr>
         <td>${p.name}</td>
         <td>${p.room}</td>
-        <td>${p.bed}</td>
+        <td>${bedNum}</td>
         <td>${p.gender || ""}</td>
         <td>${p.dob || ""}</td>
         <td>${p.admissionDate || ""}</td>
@@ -53,6 +60,7 @@ export function renderPatientView(container, patients, isModalVisible = false, e
         </td>
       </tr>
     `
+      }
     )
     .join("");
 
@@ -80,12 +88,12 @@ export function renderPatientView(container, patients, isModalVisible = false, e
           <option value="discharged">Xuất viện</option>
         </select>
         <input id="patient-room-filter" type="text" placeholder="Lọc theo phòng (vd: 101)" />
-        <button id="apply-patient-filter" class="ghost-btn" type="button"><i class="fa-solid fa-filter" aria-hidden="true"></i><span>Lọc</span></button>
-        <button id="reset-patient-filter" class="ghost-btn" type="button"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i><span>Đặt lại</span></button>
+        <button id="apply-patient-filter" class="ghost-btn" type="button"><img src="image/filter.png" alt="Lọc" class="icon-img" style="width:16px;height:16px;margin-right:6px;vertical-align:middle;"/><span>Lọc</span></button>
+        <button id="reset-patient-filter" class="ghost-btn" type="button"><img src="image/undo.png" alt="Đặt lại" class="icon-img" style="width:16px;height:16px;margin-right:6px;vertical-align:middle;"/><span>Đặt lại</span></button>
       </div>
       <div style="display:flex;gap:8px;align-items:center;">
-        <button id="print-patient-list-btn" class="ghost-btn" type="button"><i class="fa-solid fa-print" aria-hidden="true"></i><span>In danh sách</span></button>
-        <button id="open-patient-modal" ${canCreatePatient ? "" : "disabled title='Bạn không có quyền thêm bệnh nhân'"}><i class="fa-solid fa-user-plus" aria-hidden="true"></i><span>Thêm bệnh nhân</span></button>
+        <button id="print-patient-list-btn" class="ghost-btn" type="button"><img src="image/excel.png" alt="In danh sách" class="icon-img" style="width:16px;height:16px;margin-right:6px;vertical-align:middle;"/><span>In danh sách</span></button>
+        <button id="open-patient-modal" ${canCreatePatient ? "" : "disabled title='Bạn không có quyền thêm bệnh nhân'"}><img src="image/addpatient.png" alt="Thêm bệnh nhân" class="icon-img" style="width:16px;height:16px;margin-right:6px;vertical-align:middle;"/><span>Thêm bệnh nhân</span></button>
       </div>
     </div>
 
@@ -102,6 +110,25 @@ export function renderPatientView(container, patients, isModalVisible = false, e
         <div style="display:flex;justify-content:flex-end;gap:8px;">
           <button id="print-patient-cancel" class="ghost-btn" type="button">Huỷ</button>
           <button id="print-patient-confirm" class="main-btn" type="button">In</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="room-select-modal" class="modal-overlay" style="display:none;align-items:center;justify-content:center;z-index:2000;">
+      <div class="modal-card" style="max-width:1100px;min-width:820px;padding:44px 44px 36px 44px;">
+        <h3 style="font-size:1.2rem;font-weight:700;margin-bottom:18px;">Chọn lầu và phòng</h3>
+        <div style="display:flex;gap:0;align-items:stretch;justify-content:center;">
+          <div style="display:flex;flex-direction:column;align-items:center;min-width:140px;max-width:160px;min-height:320px;">
+            <div id="floor-list" style="display:flex;flex-direction:column;gap:12px;width:100%;"></div>
+          </div>
+          <div style="width:2px;background:#2563eb22;height:100%;margin:0 32px 0 32px;border-radius:2px;"></div>
+          <div style="display:flex;flex-direction:column;align-items:center;min-width:420px;max-width:520px;min-height:180px;">
+            <div id="room-list" style="display:grid;grid-template-columns:1fr 1fr;gap:18px 28px;width:100%;justify-items:center;"></div>
+          </div>
+        </div>
+        </div>
+        <div style="margin-top:22px;text-align:right;">
+          <button type="button" id="room-modal-cancel" class="ghost-btn" style="margin-right:8px;">Huỷ</button>
         </div>
       </div>
     </div>
@@ -163,13 +190,22 @@ export function renderPatientView(container, patients, isModalVisible = false, e
 
           <div class="row-2">
             <div class="field-wrap">
-              <label for="modal-patient-room">Số phòng</label>
-              <input id="modal-patient-room" name="room" type="text" placeholder="e.g., 101" required />
+              <label for="modal-patient-room">Chọn phòng</label>
+              <input id="modal-patient-room" name="room" type="text" placeholder="Chọn phòng" required readonly style="background:#f8fafd;cursor:pointer;" />
             </div>
             <div class="field-wrap">
-              <label for="modal-patient-bed">Số giường</label>
-              <input id="modal-patient-bed" name="bed" type="text" placeholder="e.g., A" required />
+              <label for="modal-patient-bed">Chọn giường</label>
+              <input id="modal-patient-bed" name="bed" type="text" placeholder="Chọn giường" required readonly style="background:#f8fafd;cursor:pointer;" />
             </div>
+              <div id="bed-select-modal" class="modal-overlay" style="display:none;align-items:center;justify-content:center;z-index:2000;">
+                <div class="modal-card" style="max-width:420px;min-width:320px;padding:32px 28px 24px 28px;">
+                  <h3 style="font-size:1.2rem;font-weight:700;margin-bottom:18px;">Chọn giường trống</h3>
+                  <div id="bed-list" style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:18px;"></div>
+                  <div style="margin-top:22px;text-align:right;">
+                    <button type="button" id="bed-modal-cancel" class="ghost-btn" style="margin-right:8px;">Huỷ</button>
+                  </div>
+                </div>
+              </div>
           </div>
 
           <div class="row-2">
@@ -200,8 +236,8 @@ export function renderPatientView(container, patients, isModalVisible = false, e
           </div>
 
           <div class="modal-actions">
-            <button type="button" class="ghost-btn modal-cancel" id="patient-modal-cancel"><i class="fa-solid fa-xmark" aria-hidden="true"></i><span>Hủy</span></button>
-            <button type="submit"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i><span>Lưu</span></button>
+            <button type="button" class="ghost-btn modal-cancel" id="patient-modal-cancel"><img src="image/close.png" alt="Hủy" class="icon-img" style="width:16px;height:16px;margin-right:6px;vertical-align:middle;"/><span>Hủy</span></button>
+            <button type="submit"><img src="image/addpatient.png" alt="Thêm bệnh nhân" class="icon-img" style="width:16px;height:16px;margin-right:6px;vertical-align:middle;"/><span>Thêm bệnh nhân</span></button>
           </div>
         </form>
       </div>
@@ -221,8 +257,8 @@ export function renderPatientView(container, patients, isModalVisible = false, e
 
           <div class="row-2">
             <div class="field-wrap">
-              <label for="edit-patient-room">Số phòng</label>
-              <input id="edit-patient-room" name="room" type="text" placeholder="e.g., 101" value="${editingPatient ? editingPatient.room : ""}" required />
+              <label for="edit-patient-room">Chọn phòng</label>
+              <input id="edit-patient-room" name="room" type="text" placeholder="Chọn phòng" value="${editingPatient ? editingPatient.room : ""}" required />
             </div>
             <div class="field-wrap">
               <label for="edit-patient-bed">Số giường</label>

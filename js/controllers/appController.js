@@ -8,6 +8,7 @@ import logService from "../services/logService.js";
 import { renderLoginView, setLoginError, resetLoginForm } from "../views/loginView.js";
 import { renderMenuView, updateActiveMenuItem } from "../views/menuView.js";
 import patientController from "./patientController.js";
+import roomController from "./roomController.js";
 import nurseController from "./nurseController.js";
 import robotController from "./robotController.js";
 import deliveryController from "./deliveryController.js";
@@ -28,6 +29,7 @@ class AppController {
 
     this.viewMap = {
       patients: document.getElementById("view-patients"),
+      rooms: document.getElementById("view-rooms"),
       nurses: document.getElementById("view-nurses"),
       robots: document.getElementById("view-robots"),
       delivery: document.getElementById("view-delivery"),
@@ -86,6 +88,7 @@ class AppController {
 
     // Khởi tạo các controller con
     patientController.init();
+    roomController.init();
     nurseController.init();
     robotController.init();
     deliveryController.init();
@@ -129,6 +132,10 @@ class AppController {
       this.hydrateUserUi();
       this.renderMenu();
       this.switchView("patients");
+      // Đảm bảo view phòng cập nhật đúng quyền ngay sau đăng nhập
+      if (typeof roomController !== 'undefined' && roomController.renderView) {
+        roomController.renderView();
+      }
     } catch (error) {
       console.error("[AppController] handleLogin error:", error);
       if (errorEl) {
@@ -155,13 +162,22 @@ class AppController {
 
   hydrateUserUi() {
     const user = authService.getCurrentUser();
-    this.profileName.textContent = user.fullName;
-    this.profileRole.textContent = user.role === "head_nurse" ? "Y tá trưởng" : "Y tá";
-    this.avatar.textContent = user.fullName.slice(0, 1).toUpperCase();
-    this.permissionBadge.textContent =
-      user.role === "head_nurse"
-        ? "Quyền: Y tá trưởng"
-        : "Quyền: Y tá";
+    this.profileName.textContent = user && user.fullName ? user.fullName : "?";
+    if (user && user.role) {
+      this.profileRole.textContent = user.role === "head_nurse" ? "Y tá trưởng" : user.role === "admin" ? "Quản trị viên" : "Y tá";
+      this.permissionBadge.textContent =
+        user.role === "head_nurse"
+          ? "Quyền: Y tá trưởng"
+          : user.role === "admin"
+            ? "Quyền: Quản trị viên"
+            : "Quyền: Y tá";
+    } else {
+      this.profileRole.textContent = "";
+      this.permissionBadge.textContent = "";
+    }
+    this.avatar.textContent = (user && user.fullName && typeof user.fullName === 'string' && user.fullName.length > 0)
+      ? user.fullName.slice(0, 1).toUpperCase()
+      : "?";
   }
 
   renderMenu() {

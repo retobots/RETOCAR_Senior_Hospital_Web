@@ -7,40 +7,46 @@ import authService from "./authService.js";
 import logService from "./logService.js";
 import firebaseService from "./firebaseService.js";
 
+import roomService from "./roomService.js";
 class PatientService {
-      // Soft delete: chuyển status discharged thay vì xóa khỏi Firestore
-      async deletePatient(id) {
-        // Không cần kiểm tra quyền để đơn giản hóa
-        const patient = this.getPatientById(id);
-        if (!patient) {
-          return { success: false, message: "Không tìm thấy bệnh nhân." };
-        }
-
-        // Có thể kiểm tra thêm điều kiện nếu cần
-        const result = await firebaseService.updatePatientProfile(id, { status: "discharged" });
-        if (!result.success) {
-          return { success: false, message: "Không thể cập nhật trạng thái bệnh nhân." };
-        }
-
-        await this.syncPatientsFromCloud();
-        return { success: true, message: "Đã xuất viện bệnh nhân." };
-      }
-    // Xuất viện (soft delete): chuyển trạng thái sang 'discharged' và cập nhật ngày xuất viện
-    async dischargePatient(id, dischargeDate) {
-      const patient = this.getPatientById(id);
-      if (!patient) {
-        return { success: false, message: "Không tìm thấy bệnh nhân." };
-      }
-
-      // Có thể kiểm tra thêm điều kiện nếu cần
-      const result = await firebaseService.updatePatientProfile(id, { status: "discharged", dischargeDate });
-      if (!result.success) {
-        return { success: false, message: "Không thể cập nhật trạng thái bệnh nhân." };
-      }
-
-      await this.syncPatientsFromCloud();
-      return { success: true, message: "Đã xuất viện bệnh nhân." };
+  // Soft delete: chuyển status discharged thay vì xóa khỏi Firestore
+  async deletePatient(id) {
+    // Không cần kiểm tra quyền để đơn giản hóa
+    const patient = this.getPatientById(id);
+    if (!patient) {
+      return { success: false, message: "Không tìm thấy bệnh nhân." };
     }
+
+    // Có thể kiểm tra thêm điều kiện nếu cần
+    const result = await firebaseService.updatePatientProfile(id, { status: "discharged" });
+    if (!result.success) {
+      return { success: false, message: "Không thể cập nhật trạng thái bệnh nhân." };
+    }
+
+    await this.syncPatientsFromCloud();
+    return { success: true, message: "Đã xuất viện bệnh nhân." };
+  }
+  // Xuất viện (soft delete): chuyển trạng thái sang 'discharged' và cập nhật ngày xuất viện
+  async dischargePatient(id, dischargeDate) {
+    const patient = this.getPatientById(id);
+    if (!patient) {
+      return { success: false, message: "Không tìm thấy bệnh nhân." };
+    }
+
+    // Có thể kiểm tra thêm điều kiện nếu cần
+    const result = await firebaseService.updatePatientProfile(id, { status: "discharged", dischargeDate });
+    if (!result.success) {
+      return { success: false, message: "Không thể cập nhật trạng thái bệnh nhân." };
+    }
+
+    // Đồng bộ trạng thái giường: set occupied false và xóa patientName
+    if (patient && patient.room && patient.bed) {
+      await roomService.updateBedStatus(patient.room, patient.bed, false, "");
+    }
+
+    await this.syncPatientsFromCloud();
+    return { success: true, message: "Đã xuất viện bệnh nhân." };
+  }
   // Lấy danh sách bệnh nhân
   getPatients() {
     return stateService.getState().patients || [];
@@ -80,7 +86,7 @@ class PatientService {
       return { success: false, message: "Không có quyền thêm bệnh nhân." };
     }
 
-    const { name, room, bed, gender, dob, admissionDate, dischargeDate } = patientData;
+    const { name, room, bed, gender, dob, admissionDate, dischargeDate, doctor } = patientData;
     if (!name || !room || !bed) {
       return { success: false, message: "Vui lòng nhập đủ thông tin." };
     }
@@ -88,9 +94,11 @@ class PatientService {
     try {
       // Luôn set status là 'admitted' khi thêm mới
       const result = await firebaseService.addPatientProfile({
-        name, room, bed, status: 'admitted', gender, dob, admissionDate, dischargeDate
+        name, room, bed, status: 'admitted', gender, dob, admissionDate, dischargeDate, doctor
       });
       if (result.success) {
+        // Cập nhật trạng thái giường: set occupied=true, patientName
+        await roomService.updateBedStatus(room, bed, true, name);
         // Luôn đồng bộ lại danh sách từ Firestore để lấy đúng id
         await this.syncPatientsFromCloud();
         logService.addSystemLog("patients", "Thêm bệnh nhân", "success", `${name} - phòng ${room}`);

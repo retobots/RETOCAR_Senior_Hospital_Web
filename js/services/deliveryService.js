@@ -90,6 +90,19 @@ class DeliveryService {
 
     // Chuẩn bị dữ liệu cho từng ngăn được sử dụng
     const binsData = [];
+    // Lấy rooms từ roomService (fallback import nếu window.roomService không tồn tại)
+    let roomsList = [];
+    try {
+      if (window.roomService && typeof window.roomService.getRooms === 'function') {
+        roomsList = await window.roomService.getRooms();
+      } else {
+        const { default: roomService } = await import('./roomService.js');
+        roomsList = await roomService.getRooms();
+      }
+      if (!Array.isArray(roomsList)) roomsList = [];
+    } catch (err) {
+      roomsList = [];
+    }
     readyBins.forEach((bin) => {
       const binIndex = state.deliveryBins.findIndex(b => b === bin);
       const slot = binIndex >= 0 ? binIndex + 1 : 1;
@@ -97,11 +110,31 @@ class DeliveryService {
       try {
         patient = patientsList.find && patientsList.find((p) => String(p.id) === String(bin.patientId));
       } catch (err) {}
+      // Lấy position từ roomService (theo room, bed)
+      let position = null;
+      if (patient && patient.room && patient.bed) {
+        const room = roomsList.find(r => String(r.name) === String(patient.room));
+        if (room && Array.isArray(room.beds)) {
+          // Tìm bed index (theo số giường, chỉ lấy số)
+          let bedIdx = -1;
+          for (let i = 0; i < room.beds.length; i++) {
+            const bedName = typeof room.beds[i] === 'object' ? room.beds[i].name : room.beds[i];
+            if ((bedName && bedName.match(/\d+/)?.[0]) === (patient.bed && patient.bed.match(/\d+/)?.[0])) {
+              bedIdx = i;
+              break;
+            }
+          }
+          if (bedIdx >= 0 && room.beds[bedIdx] && room.beds[bedIdx].position) {
+            position = room.beds[bedIdx].position;
+          }
+        }
+      }
       binsData.push({
         slot: slot,
         patientName: patient ? patient.name : "Unknown",
         room: patient ? patient.room : "",
         bed: patient ? patient.bed : "",
+        position: position || null,
         status: "delivering",
         note: bin.note
       });

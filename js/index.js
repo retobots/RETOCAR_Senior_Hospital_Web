@@ -16,6 +16,7 @@ import "./firebase-config.js";
 import stateService from "./services/stateService.js";
 window.stateService = stateService;
 import appController from "./controllers/appController.js";
-
+import authService from "./services/authService.js";
+window.authService = authService;
 // Khởi tạo ứng dụng
 appController.init();

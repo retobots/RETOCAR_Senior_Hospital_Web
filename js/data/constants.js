@@ -4,6 +4,7 @@
 
 export const MENU_ITEMS = [
   { key: "patients", label: '<img src="image/patient.png" class="icon-img"> Bệnh nhân' },
+  { key: "rooms", label: '<img src="image/bed.png" class="icon-img"> Phòng bệnh' },
   { key: "nurses", label: '<img src="image/nurse.png" class="icon-img"> Y tá' },
   { key: "robots", label: '<img src="image/robot.png" class="icon-img"> Robot' },
   { key: "delivery", label: '<img src="image/medicine.png" class="icon-img"> Giao thuốc' },
@@ -11,7 +12,7 @@ export const MENU_ITEMS = [
 ];
 
 export const ROLE_PERMISSIONS = {
-  head_nurse: [
+  admin: [
     "patients.create",
     "nurses.create",
     "nurses.edit",
@@ -21,13 +22,26 @@ export const ROLE_PERMISSIONS = {
     "delivery.start",
     "logs.export",
     "logs.system.view",
+    "rooms.create",
+    "rooms.edit_position"
+  ],
+  head_nurse: [
+    "patients.create",
+    "nurses.create",
+    "nurses.edit",
+    "nurses.delete",
+    "nurses.password",
+    "delivery.edit",
+    "delivery.start",
+    "logs.export",
+    "logs.system.view"
   ],
   nurse: [
     "patients.create",
     "delivery.edit",
     "delivery.start",
     "logs.export",
-    "logs.system.view",
+    "logs.system.view"
   ],
 };
 

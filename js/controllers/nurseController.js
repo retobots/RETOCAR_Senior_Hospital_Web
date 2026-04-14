@@ -69,6 +69,7 @@ class NurseController {
     // Lọc
     const roleFilter = this.viewContainer.querySelector("#nurse-role-filter");
     const statusFilter = this.viewContainer.querySelector("#nurse-status-filter");
+    const searchInput = this.viewContainer.querySelector("#nurse-search-input");
     const applyBtn = this.viewContainer.querySelector("#apply-nurse-filter");
     const resetBtn = this.viewContainer.querySelector("#reset-nurse-filter");
 
@@ -78,12 +79,22 @@ class NurseController {
     if (statusFilter) {
       statusFilter.value = this.filters.status;
     }
+    if (searchInput) {
+      searchInput.value = this.filters.search || "";
+      searchInput.addEventListener("input", (e) => {
+        this.filters.search = e.target.value;
+        this.renderView(this.filters.search).catch((error) => {
+          console.error("[NurseController] renderView error (search):", error);
+        });
+      });
+    }
 
     if (applyBtn) {
       applyBtn.addEventListener("click", () => {
         this.filters.role = roleFilter.value;
         this.filters.status = statusFilter.value;
-        this.renderView().catch((error) => {
+        // Giữ lại giá trị search khi lọc
+        this.renderView(this.filters.search || "").catch((error) => {
           console.error("[NurseController] renderView error:", error);
         });
       });
@@ -91,7 +102,7 @@ class NurseController {
 
     if (resetBtn) {
       resetBtn.addEventListener("click", () => {
-        this.filters = { role: "all", status: "all" };
+        this.filters = { role: "all", status: "all", search: "" };
         this.renderView().catch((error) => {
           console.error("[NurseController] renderView error:", error);
         });

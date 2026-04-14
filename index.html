@@ -14,7 +14,10 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
-  <div id="app">
+  <div id="splash" class="splash-screen">
+    <div class="splash-logo" id="splash-logo"></div>
+  </div>
+  <div id="app" style="display:none;">
     <section id="login-screen" class="login-screen">
       <div class="login-card">
         <div class="logo-badge">+</div>
@@ -57,11 +60,12 @@
           <input type="text" id="global-search" placeholder="Tìm bệnh nhân, y tá, robot..." />
           <div class="topbar-right">
             <span id="permission-badge" class="perm-badge"></span>
-            <button id="logout-btn" class="ghost-btn"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i><span>Đăng xuất</span></button>
+            <button id="logout-btn" class="ghost-btn"><img src="image/logout.png" alt="logout" class="icon-img" style="width:18px;height:18px;margin-right:6px;vertical-align:middle;"/><span>Đăng xuất</span></button>
           </div>
         </header>
 
         <section id="view-patients" class="view"></section>
+        <section id="view-rooms" class="view hidden"></section>
         <section id="view-nurses" class="view hidden"></section>
         <section id="view-robots" class="view hidden"></section>
         <section id="view-delivery" class="view hidden"></section>
@@ -71,6 +75,61 @@
   </div>
 
   <script type="module" src="js/index.js"></script>
+  <script>
+    // Hiệu ứng splash từng chữ cho Smart Hospital
+    const splashLogo = document.getElementById('splash-logo');
+    const splashText = 'Smart Hospital';
+    let html = '';
+    for (let i = 0; i < splashText.length; i++) {
+      const c = splashText[i] === ' ' ? '&nbsp;' : splashText[i];
+      html += `<span class="splash-char" style="animation-delay:${i*0.08}s">${c}</span>`;
+    }
+    splashLogo.innerHTML = html;
+    // Ẩn splash sau hiệu ứng
+    setTimeout(() => {
+      document.getElementById('splash').style.opacity = 0;
+      setTimeout(() => {
+        document.getElementById('splash').style.display = 'none';
+        document.getElementById('app').style.display = '';
+      }, 600);
+    }, 1800);
+  </script>
+  <style>
+    .splash-screen {
+      position: fixed;
+      z-index: 9999;
+      inset: 0;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.6s;
+    }
+    .splash-logo {
+      font-size: 3.2rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: #2f7bff;
+      display: flex;
+      gap: 0.08em;
+      font-family: 'Be Vietnam Pro', sans-serif;
+      user-select: none;
+    }
+    .splash-char {
+      opacity: 0;
+      transform: translateY(32px) scale(0.8) rotate(-8deg);
+      animation: splashIn 0.5s cubic-bezier(.7,-0.2,.3,1.4) forwards;
+    }
+    .splash-char:nth-child(odd) {
+      color: #00afdd;
+    }
+    @keyframes splashIn {
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+  </style>
   
 </body>
 </html>

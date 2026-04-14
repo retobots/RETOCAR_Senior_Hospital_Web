@@ -48,7 +48,7 @@ export function renderNurseView(container, nurses, isModalVisible = false) {
     </div>
 
     <div class="card patient-toolbar-card" style="position:relative;display:flex;align-items:center;justify-content:space-between;gap:12px;">
-      <div class="filter-group">
+      <div class="filter-group" style="display:flex;gap:8px;align-items:center;">
         <select id="nurse-role-filter">
           <option value="all">Tất cả vai trò</option>
           <option value="head_nurse">Y tá trưởng</option>
@@ -59,10 +59,11 @@ export function renderNurseView(container, nurses, isModalVisible = false) {
           <option value="active">Đang hoạt động</option>
           <option value="inactive">Ngưng hoạt động</option>
         </select>
-        <button id="apply-nurse-filter" class="ghost-btn" type="button"><i class="fa-solid fa-filter" aria-hidden="true"></i><span>Lọc</span></button>
-        <button id="reset-nurse-filter" class="ghost-btn" type="button"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i><span>Đặt lại</span></button>
+        <input id="nurse-search-input" type="text" placeholder="Tìm kiếm y tá..." style="border:1.5px solid #dde8f3;border-radius:14px;padding:8px 16px;font-size:1rem;min-width:220px;background:#fff;outline:none;transition:border-color 0.18s;" />
+        <button id="apply-nurse-filter" class="ghost-btn" type="button" style="border:1.5px solid #dde8f3;color:#133150;background:#f7fbff;font-weight:600;display:inline-flex;align-items:center;gap:6px;border-radius:16px;padding:8px 22px;box-shadow:0 2px 8px #eaf4ff;transition:all 0.18s;font-size:1.08rem;line-height:1.2;margin-left:0;margin-right:0;"> <img src="image/filter.png" alt="Lọc" class="icon-img" style="width:16px;height:16px;margin-right:6px;vertical-align:middle;"/><span style="font-size:1.08rem;font-weight:600;">Lọc</span></button>
+        <button id="reset-nurse-filter" class="ghost-btn" type="button" style="border:1.5px solid #dde8f3;color:#133150;background:#fff;font-weight:600;display:inline-flex;align-items:center;gap:8px;border-radius:16px;padding:8px 22px;box-shadow:0 2px 8px #eaf4ff;transition:all 0.18s;line-height:1.2;"> <img src="image/undo.png" alt="Đặt lại" class="icon-img" style="width:18px;height:18px;margin-right:8px;vertical-align:middle;"/><span>Đặt lại</span></button>
       </div>
-      <button id="open-nurse-modal" ${canCreateNurse ? "" : "disabled title='Không có quyền thêm y tá'"} style="margin-left:auto;"><i class="fa-solid fa-user-plus" aria-hidden="true"></i><span>Thêm y tá</span></button>
+      <button id="open-nurse-modal" ${canCreateNurse ? "" : "disabled title='Không có quyền thêm y tá'"} style="margin-left:auto;background:linear-gradient(120deg, var(--cyan), var(--blue));color:#fff;font-weight:700;min-width:160px;padding-left:22px;padding-right:22px;display:inline-flex;align-items:center;gap:8px;border-radius:16px;box-shadow:0 4px 16px #eaf4ff;transition:all 0.18s;"><img src="image/addnurse.png" alt="Thêm y tá" class="icon-img" style="width:18px;height:18px;margin-right:8px;vertical-align:middle;"/><span>Thêm y tá</span></button>
     </div>
 
 
@@ -132,8 +133,14 @@ export function renderNurseView(container, nurses, isModalVisible = false) {
     </script>
 
           <div class="modal-actions">
-            <button type="button" class="ghost-btn modal-cancel" id="nurse-modal-cancel"><i class="fa-solid fa-xmark" aria-hidden="true"></i><span>Hủy</span></button>
-            <button type="submit"><i class="fa-solid fa-user-check" aria-hidden="true"></i><span>Lưu tài khoản</span></button>
+            <button type="button" class="ghost-btn modal-cancel" id="nurse-modal-cancel">
+              <img src="image/close.png" alt="Đóng" class="icon-img" style="width:18px;height:18px;margin-right:8px;vertical-align:middle;"/>
+              <span>Hủy</span>
+            </button>
+            <button type="submit">
+              <img src="image/addnurse.png" alt="Lưu tài khoản" class="icon-img" style="width:18px;height:18px;margin-right:8px;vertical-align:middle;"/>
+              <span>Lưu tài khoản</span>
+            </button>
           </div>
         </form>
       </div>
